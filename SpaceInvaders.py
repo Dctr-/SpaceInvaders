@@ -533,6 +533,8 @@ class Menu (object) :
                     elif evt.key == K_RETURN :
                         # Ends loop and adds info to text file
                         end = False
+                        if len(name) > 10:
+                            name = name[:9]
                         snOut.write (name + "\n")
                         snOut.write (str (score) + "\n")
                         snOut.close ()
