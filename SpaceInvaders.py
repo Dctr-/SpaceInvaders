@@ -1,7 +1,10 @@
-import pygame, time, sys, random, math
+import pygame, time, sys, random, math, os
 from operator import itemgetter
 from pygame.locals import *
 pygame.init()
+
+os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (15,30)
+
 
 class GameLoop(object):
     def __init__(self):
@@ -62,6 +65,11 @@ class GameLoop(object):
         for i in self.enemies:
             if Enemy.changeDir == True:
                 for g in self.enemies:
+                    if g.speed > 0:
+                        g.speed += 0.4
+                    else:
+                        g.speed -= 0.4
+                    g.y += 0.4
                     g.changeDirection()
                     self.surface.blit (g.image, g.rect)
                 Enemy.changeDir = False
@@ -96,7 +104,7 @@ class GameLoop(object):
     
     def excecute(self):
         wave1 = [[1,1,1,1],[1,1,1,1]]
-        wave2 = [[1,1,1,1],[2,2,2,2]]
+        wave2 = [[1,2,1,2],[1,2,1,2]]
         wave3 = [[1,1,1,1],[2,2,2,2], [3,3,3,3]]
         
         bg = pygame.image.load("bgtemp.png")
@@ -112,6 +120,7 @@ class GameLoop(object):
         self.lives = 3
         wavecounter = 1
         loopcounter = 1
+        pygame.mouse.set_visible(0)
         while True:
             if self.enemies == []:
                 if wavecounter == 1:
@@ -131,8 +140,7 @@ class GameLoop(object):
                     self.spaceship = Spaceship(self.surface, self.enemies, self.spaceship.score, self.spaceship.rect.topleft, self.sataliteList)
                 wavecounter += 1
             if self.lives == 0:
-                self.surface.blit(font.render("Lives: "  + str(self.lives), True, (0, 0, 0)), (800, 50))
-                print(self.spaceship.score)
+                self.surface.blit(font.render("Lives: "  + str(self.lives), True, (255, 255, 255)), (800, 50))
                 return self.spaceship.score
                 break
             self.surface.blit(bg,bgRect)
@@ -195,7 +203,6 @@ class Enemy(object):
             for i in self.sataliteList:
                 if i.rect.colliderect(self.bullet):
                     self.draw = False
-                    self.bullet.center = (self.rect.center[0],self.rect.bottom)
                     i.health -= 1
             if self.bullet.top > 1000:
                 self.draw = False
@@ -371,6 +378,7 @@ class Menu (object) :
 
     def start (self):
         # creates asteroid
+        pygame.mouse.set_visible(1)
         asteroid = pygame.image.load ("asteroidIntro.png")
         asteroid = pygame.transform.scale (asteroid, (75, 75))
         asteroidRect = asteroid.get_rect (center = (75/2, 75/2))
@@ -450,8 +458,7 @@ class Menu (object) :
                     x = GameLoop()
                     score = x.excecute()
                     self.gameOver = pygame.font.SysFont ('', 90)
-                    self.screen.fill ([255, 255, 255])
-                    self.screen.blit (self.gameOver.render("GAME OVER", True, (0, 0, 0)), (320, 400))
+                    self.screen.blit (self.gameOver.render("GAME OVER", True, (255, 0, 0)), (320, 400))
                     pygame.display.update ()
                     time.sleep(4)
                     self.inputLead (score) # receives score
@@ -466,7 +473,6 @@ class Menu (object) :
                 break
             info ["Score"] = int(str.strip (snIn.readline ()))
             self.leaders.append (info)
-        print (self.leaders)
         snIn.close ()
 
     def outputLead (self) :
